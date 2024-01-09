@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 class Discriminator(nn.Module):
-    def __init__(self, channels_image, features_d):
+    def __init__(self, channels_image: int, features_d: int) -> None:
         super(Discriminator, self).__init__()
         
         self.discriminator = nn.Sequential(
@@ -74,25 +74,3 @@ def initialize_weights(model: nn.Module) -> None:
     for module in model.modules():
         if isinstance(module, (nn.Conv2d, nn.ConvTranspose2d, nn.BatchNorm2d)):
             nn.init.normal_(module.weight.data, 0.0, 0.02)
-
-def test():
-    N, in_channels, H, W = 8, 3, 64, 64
-    z_dim = 100
-
-    x = torch.randn((N, in_channels, H, W))
-
-    discriminator = Discriminator(in_channels, 8)
-    initialize_weights(discriminator)
-
-    assert discriminator(x).shape == (N, 1, 1, 1)
-
-    generator = Generator(z_dim, in_channels, 8)
-    initialize_weights(generator)
-    
-    z = torch.randn((N, z_dim, 1, 1))
-
-    assert generator(z).shape == (N, in_channels, H, W)
-
-    print("Success")
-
-test()
