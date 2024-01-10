@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools"]
+
+[project]
+name = "gans_implementation"
+authors = [
+    {name = "Nikolai Makarov", email = "makarov.nikolai20@gmail.com"},
+]
+description = "Lil storage of gans pytorch impementation"
+readme = "README.md"
+requires-python = ">=3.10.6"
+classifiers = [
+    "Framework :: pytorch",
+    "Programming Language :: Python :: 3",
+]
+dependencies = []
+version="0.0.1"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = false
+warn_unused_configs = true
+no_incremental = true
+no_implicit_optional = true
+ignore_missing_imports = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_subclassing_any = true
+disallow_any_generics = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unreachable = true
+allow_untyped_decorators = true
