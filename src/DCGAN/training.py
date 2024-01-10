@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 from DCGAN.models import Discriminator, Generator, initialize_weights
 
 
-device: object = torch.device("cuda") if torch.cuda.is_available() else "cpu"
+device: torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 learning_rate: float = 2e-4
 
@@ -43,22 +43,22 @@ dataset = datasets.MNIST(root=str(Path.joinpath(dir_path, "dataset")), train=Tru
 dataloader: DataLoader[tuple[torch.Tensor, torch.Tensor]] = DataLoader(dataset,
     batch_size=batch_size, shuffle=True)
 
-generator = Generator(z_dim, channels_image, features_generator).to(device) # type: ignore
+generator = Generator(z_dim, channels_image, features_generator).to(device)
 initialize_weights(generator)
 optimizer_generator = optim.Adam(generator.parameters(), lr=learning_rate, betas=(0.5, 0.999))
 
-discriminator = Discriminator(channels_image, features_discriminator).to(device) # type: ignore
+discriminator = Discriminator(channels_image, features_discriminator).to(device)
 initialize_weights(discriminator)
 optimizer_discriminator = optim.Adam(discriminator.parameters(), lr=learning_rate, betas=(0.5, 0.999))
 
 criterion = nn.BCELoss()
 
-fixed_noise: torch.Tensor = torch.randn((32, z_dim, 1, 1)).to(device) # type: ignore
+fixed_noise: torch.Tensor = torch.randn((32, z_dim, 1, 1)).to(device)
 
 for epoch in range(num_epochs):
     for batch_idx, (real, _) in enumerate(dataloader):
         real = real.to(device)
-        noise: torch.Tensor = torch.randn((batch_size, z_dim, 1, 1)).to(device) # type: ignore
+        noise: torch.Tensor = torch.randn((batch_size, z_dim, 1, 1)).to(device)
 
         fake = generator(noise)
 
