@@ -6,6 +6,9 @@ The subproject based on [this](https://arxiv.org/abs/1511.06434) paper. Here you
 
 Talking about trainig result, I've trained this model during 15 epochs, here you can this the result:
 
-![](./readme_data/MNIST_real.png "Real MNIST") ![](./readme_data/MNIST_generated.png "Generated samples")
+![](./readme_data/MNIST_real.png "Real MNIST")
+Real MNIST
+![](./readme_data/MNIST_generated.png "Generated samples")
+Generated samples
 
 This dataset is quite simple, but generation result are quite good, so I think that my implementation works.
