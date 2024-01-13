@@ -1,5 +1,5 @@
 # WGAN implementation
-## OVerview
+## Overview
 This implementation is totally based on [this](https://arxiv.org/abs/1701.07875) paper. Since it's so hard to understand, you can read [this](https://www.alexirpan.com/2017/02/22/wasserstein-gan.html) awesome post - it's so helpful.
 
 I've used the same architecture that [DCGAN](https://arxiv.org/abs/1511.06434) paper proposed. But there are some changes. First of all, now it's called Critic. Also there is no last activation layer for now, cause Critic's output can be every real number, not only [0,1].
