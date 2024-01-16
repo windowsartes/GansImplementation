@@ -85,10 +85,11 @@ critic.train()
 for epoch in range(num_epochs):
     for batch_idx, (real, _) in enumerate(dataloader):
         real = real.to(device)
+        current_batch_size: int = real.shape[0]
 
         # train critic
         for _ in range(critic_iterations):
-            noise: torch.Tensor = torch.randn((batch_size, z_dim, 1, 1)).to(device)
+            noise: torch.Tensor = torch.randn((current_batch_size, z_dim, 1, 1)).to(device)
 
             fake = generator(noise)
 
