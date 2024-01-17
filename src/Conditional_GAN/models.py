@@ -17,7 +17,7 @@ class Critic(nn.Module):
             nn.Conv2d(features_d*8, 1, kernel_size=4, stride=1, padding=0)
         )
 
-        self.embedding = nn.Embedding(num_classes, channels_image*image_size*image_size)
+        self.embedding = nn.Embedding(num_classes, 1*image_size*image_size)
 
     def _block(self, in_channels: int, out_channels: int, kernel_size: int,
         stride: int, padding: int) -> nn.Sequential:
@@ -85,6 +85,7 @@ class Generator(nn.Module):
         # but for now we'll also generate a vector from this  embedding layer, so it contains some
         # information about labels and this embedding we'll interpret like new channel for input  
         embedding = self.embedding(label).unsqueeze(2).unsqueeze(3)
+        # print(embedding.shape, input.shape, label.shape, self.embedding(label).shape)
         input = torch.cat([input, embedding], dim = 1)
 
         return self.generator(input)
