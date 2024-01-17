@@ -17,6 +17,7 @@ dependencies = []
 version="0.0.1"
 
 [tool.mypy]
+exclude = "test.py$"
 python_version = "3.10"
 warn_return_any = false
 warn_unused_configs = true
