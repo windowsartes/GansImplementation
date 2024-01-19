@@ -13,12 +13,12 @@ class DiscriminatorCNNBlock(nn.Module):
             nn.LeakyReLU(0.2)
         )
 
-    def forward(self, input: torch.Tensor):
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
         return self.block(input)
 
 
 class Discriminator(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, features: tuple[int]):
+    def __init__(self, in_channels: int, out_channels: int, features: tuple[int, ...]):
         super().__init__()
 
         self.initial_block: nn.Sequential = nn.Sequential(
@@ -27,7 +27,7 @@ class Discriminator(nn.Module):
             nn.LeakyReLU(0.2)            
         )
 
-        layers: list[CNNBlock] = []
+        layers: list[nn.Module] = []
 
         in_channels = features[0]
 
@@ -48,15 +48,15 @@ class Discriminator(nn.Module):
         self.model: nn.Sequential = nn.Sequential(*layers)
 
 
-    def forward(self, input: torch.Tensor, output: torch.Tensor):
+    def forward(self, input: torch.Tensor, output: torch.Tensor) -> torch.Tensor:
         input = torch.cat([input, output], dim=1)
         input = self.initial_block(input)
 
         return self.model(input)
 
 class GeneratorCNNBlock(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, down = True,
-        activation = "relu", use_dropout = True):
+    def __init__(self, in_channels: int, out_channels: int, down: bool = True,
+        activation: str = "relu", use_dropout: bool = True):
 
         super().__init__()
 
@@ -70,7 +70,7 @@ class GeneratorCNNBlock(nn.Module):
         self.use_dropout: bool = use_dropout
         self.dropout_layer: nn.Dropout = nn.Dropout(0.5)  
 
-    def forward(self, input: torch.Tensor):
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
         input = self.block(input)
 
         if self.use_dropout:
@@ -124,7 +124,7 @@ class Generator(nn.Module):
             nn.Tanh() 
         ) # 128 -> 256
 
-    def forward(self, input: torch.Tensor):
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
         initial_output = self.initial_down(input)
         down_1_output = self.down_1(initial_output)
         down_2_output = self.down_2(down_1_output)
