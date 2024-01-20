@@ -3,12 +3,12 @@ import torch.nn as nn
 
 
 class DiscriminatorCNNBlock(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, kernel_size: int, stride: int, padding: int):
+    def __init__(self, in_channels: int, out_channels: int, stride: int):
         super().__init__()
 
         self.block = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size, stride, bias=False,
-                padding=padding, padding_mode="reflect"),
+            nn.Conv2d(in_channels, out_channels, kernel_size=4, stride=stride, bias=False,
+                padding=1, padding_mode="reflect"),
             nn.InstanceNorm2d(out_channels, affine=True),
             nn.LeakyReLU(0.2)
         )
@@ -33,16 +33,16 @@ class Discriminator(nn.Module):
 
         for feature in features[1:-1]:
             layers.append(
-                DiscriminatorCNNBlock(in_channels, feature, 4, 2, 1)
+                DiscriminatorCNNBlock(in_channels, feature, 2)
             )
             in_channels = feature     
 
         layers.append(
-            DiscriminatorCNNBlock(in_channels, features[-1], 3, 1, 0)
+            DiscriminatorCNNBlock(in_channels, features[-1], 1)
         )
         
         layers.append(
-            nn.Conv2d(features[-1], 1, 1)
+            nn.Conv2d(features[-1], 1, kernel_size=4, stride=1, padding=1, padding_mode="reflect")
         )
 
         self.model: nn.Sequential = nn.Sequential(*layers)
@@ -53,6 +53,7 @@ class Discriminator(nn.Module):
         input = self.initial_block(input)
 
         return self.model(input)
+
 
 class GeneratorCNNBlock(nn.Module):
     def __init__(self, in_channels: int, out_channels: int, down: bool = True,
@@ -76,6 +77,7 @@ class GeneratorCNNBlock(nn.Module):
         if self.use_dropout:
             return self.dropout_layer(input)
         return input
+
 
 class Generator(nn.Module):
     def __init__(self, in_channels: int, features_g: int ):
