@@ -12,7 +12,7 @@
 In this repository you can find implementation of some GAN written from scratch on pytorch.
 For now, there you can find such architectures, as:
 * [Deep Convolutional (DC) GAN](./src/DCGAN/);
-* [Conditional Variation of DC GAN](./src/Conditional_GAN/) that works with finit number of classes;
+* [Conditional Variation of DC GAN](./src/Conditional_GAN/) that works with finite number of classes;
 * [Wasserstein GAN](./src/WGAN/);
 * [Wasserstein GAN with gradient penalty](./src/WGAN_GP/);
 * [Pix2Pix model](./src/Pix2Pix/);
@@ -25,7 +25,7 @@ Later I'll also add:
 * SuperResolution (SR) GAN;
 * ESRGAN;
 
-Add a banch of metrics, such as:
+And a banch of metrics, such as:
 * Frechet inception distance;
 * Leave-one-out 1NN score;
 
