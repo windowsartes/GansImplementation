@@ -8,7 +8,7 @@ from torchvision.utils import save_image
 from tqdm import tqdm
 
 import Pix2Pix.config as config
-from Pix2Pix.dataset import MapDataset
+from Pix2Pix.dataset import Pix2PixDataset
 from Pix2Pix.models import Generator, Discriminator
 from Pix2Pix.utils import save_checkpoint, load_checkpoint, save_some_examples
 
@@ -80,11 +80,11 @@ if __name__ == "__main__":
         load_checkpoint(config.checkpoint_generator, generator, optimizer_generator,
             config.learning_rate)
 
-    train_dataset: MapDataset = MapDataset(os.path.join("data", os.path.join("maps", "train")))
+    train_dataset: Pix2PixDataset = Pix2PixDataset(os.path.join("data", os.path.join("maps", "train")))
     train_dataloader: DataLoader[tuple[torch.Tensor, torch.Tensor]] = DataLoader(train_dataset,
         batch_size=config.batch_size, shuffle=True, num_workers=config.num_workers)
 
-    val_dataset: MapDataset = MapDataset(os.path.join("data", os.path.join("maps", "val")))
+    val_dataset: Pix2PixDataset = Pix2PixDataset(os.path.join("data", os.path.join("maps", "val")))
     val_dataloader: DataLoader[tuple[torch.Tensor, torch.Tensor]] = DataLoader(val_dataset,
         batch_size=config.batch_size, shuffle=False)
 

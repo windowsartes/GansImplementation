@@ -8,7 +8,7 @@ from torch.utils.data import Dataset
 import Pix2Pix.config as config
 
 
-class MapDataset(Dataset): # type: ignore
+class Pix2PixDataset(Dataset): # type: ignore
     def __init__(self, path_to_data: str):
         self.path_to_data: str = path_to_data
         self.list_files: list[str] = os.listdir(self.path_to_data)
@@ -23,9 +23,12 @@ class MapDataset(Dataset): # type: ignore
         image: np.typing.NDArray[np.int64] = np.array(Image.open(imaga_path))
 
         image_width: int = image.shape[1]
+
+        # image_target: np.ndarray = image[:, :image_width//2, :]
+        # image_input: np.ndarray = image[:, image_width//2:, :]
         
-        image_input: np.typing.NDArray[np.int64] = image[:, :600, :]
-        image_target: np.typing.NDArray[np.int64] = image[:, 600:, :]
+        image_input: np.ndarray = image[:, :image_width//2, :]
+        image_target: np.ndarray = image[:, image_width//2:, :]
 
         augmentations: dict[str, torch.Tensor] = config.both_transforms(image=image_input, image0=image_target)
 
