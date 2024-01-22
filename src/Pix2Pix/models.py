@@ -3,6 +3,9 @@ import torch.nn as nn
 
 
 class DiscriminatorCNNBlock(nn.Module):
+    """
+    CNN block used by Discriminator; contains Conv2d layer, InstanceNorm and LeakyReLu activation;
+    """
     def __init__(self, in_channels: int, out_channels: int, stride: int):
         super().__init__()
 
@@ -18,7 +21,11 @@ class DiscriminatorCNNBlock(nn.Module):
 
 
 class Discriminator(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, features: tuple[int, ...]):
+    """
+    Discriminator model used in Pix2Pix architecture;
+    """
+    def __init__(self, in_channels: int, out_channels: int,
+        features: tuple[int, ...] = (64, 128, 256, 512)):
         super().__init__()
 
         self.initial_block: nn.Sequential = nn.Sequential(
@@ -56,6 +63,10 @@ class Discriminator(nn.Module):
 
 
 class GeneratorCNNBlock(nn.Module):
+    """
+    CNN block used by Generator. In 'down' mode contain Conv layer, InstanceNorm and RelU or LeakyReLu activation;
+    In 'up' mode contains ConvTransposed layer, InstanceNorm and the same activation option;
+    """
     def __init__(self, in_channels: int, out_channels: int, down: bool = True,
         activation: str = "relu", use_dropout: bool = True):
 
@@ -80,51 +91,54 @@ class GeneratorCNNBlock(nn.Module):
 
 
 class Generator(nn.Module):
-    def __init__(self, in_channels: int, features_g: int ):
+    """
+    Generator model used in Pix2Pix architecture;
+    """
+    def __init__(self, in_channels: int, features_g: int):
         super().__init__()
 
         self.initial_down = nn.Sequential(
             nn.Conv2d(in_channels, features_g, 4, 2, 1, padding_mode="reflect"),
             nn.LeakyReLU(0.2)
-        ) # 256 -> 128
+        )  # 256 -> 128
 
-        self.down_1 = GeneratorCNNBlock(features_g, features_g*2, down=True, activation="leaky",
-            use_dropout=False) # 128 -> 64
-        self.down_2 = GeneratorCNNBlock(features_g*2, features_g*4, down=True, activation="leaky",
-            use_dropout=False) # 64 -> 32
-        self.down_3 = GeneratorCNNBlock(features_g*4, features_g*8, down=True, activation="leaky",
-            use_dropout=False) # 32 -> 16
-        self.down_4 = GeneratorCNNBlock(features_g*8, features_g*8, down=True, activation="leaky",
-            use_dropout=False) # 16 -> 8
-        self.down_5 = GeneratorCNNBlock(features_g*8, features_g*8, down=True, activation="leaky",
-            use_dropout=False) # 8 -> 4
-        self.down_6 = GeneratorCNNBlock(features_g*8, features_g*8, down=True, activation="leaky",
-            use_dropout=False) # 4 -> 2
+        self.down_1 = GeneratorCNNBlock(features_g, features_g * 2, down=True, activation="leaky",
+            use_dropout=False)  # 128 -> 64
+        self.down_2 = GeneratorCNNBlock(features_g * 2, features_g * 4, down=True, activation="leaky",
+            use_dropout=False)  # 64 -> 32
+        self.down_3 = GeneratorCNNBlock(features_g * 4, features_g * 8, down=True, activation="leaky",
+            use_dropout=False)  # 32 -> 16
+        self.down_4 = GeneratorCNNBlock(features_g * 8, features_g * 8, down=True, activation="leaky",
+            use_dropout=False)  # 16 -> 8
+        self.down_5 = GeneratorCNNBlock(features_g * 8, features_g * 8, down=True, activation="leaky",
+            use_dropout=False)  # 8 -> 4
+        self.down_6 = GeneratorCNNBlock(features_g * 8, features_g * 8, down=True, activation="leaky",
+            use_dropout=False)  # 4 -> 2
 
         self.bottleneck = nn.Sequential(
-            nn.Conv2d(features_g*8, features_g*8, 4, 2, 1, padding_mode="reflect"), # 2 -> 1
+            nn.Conv2d(features_g * 8, features_g * 8, 4, 2, 1, padding_mode="reflect"),  # 2 -> 1
             nn.ReLU()
         )
 
-        self.up_1 = GeneratorCNNBlock(features_g*8, features_g*8, down=False, activation="relu",
-            use_dropout=True) # 1 -> 2
-        self.up_2 = GeneratorCNNBlock(features_g*16, features_g*8, down=False, activation="relu",
-            use_dropout=True) # 2 -> 4
-        self.up_3 = GeneratorCNNBlock(features_g*16, features_g*8, down=False, activation="relu",
-            use_dropout=True) # 4 -> 8
-        self.up_4 = GeneratorCNNBlock(features_g*16, features_g*8, down=False, activation="relu",
-            use_dropout=False) # 8 -> 16
-        self.up_5 = GeneratorCNNBlock(features_g*16, features_g*4, down=False, activation="relu",
-            use_dropout=False) # 16 -> 32
-        self.up_6 = GeneratorCNNBlock(features_g*8, features_g*2, down=False, activation="relu",
-            use_dropout=False) # 32 -> 64
-        self.up_7 = GeneratorCNNBlock(features_g*4, features_g, down=False, activation="relu",
-            use_dropout=False) # 64 -> 128
+        self.up_1 = GeneratorCNNBlock(features_g * 8, features_g * 8, down=False, activation="relu",
+            use_dropout=True)  # 1 -> 2
+        self.up_2 = GeneratorCNNBlock(features_g * 16, features_g * 8, down=False, activation="relu",
+            use_dropout=True)  # 2 -> 4
+        self.up_3 = GeneratorCNNBlock(features_g * 16, features_g * 8, down=False, activation="relu",
+            use_dropout=True)  # 4 -> 8
+        self.up_4 = GeneratorCNNBlock(features_g * 16, features_g * 8, down=False, activation="relu",
+            use_dropout=False)  # 8 -> 16
+        self.up_5 = GeneratorCNNBlock(features_g * 16, features_g * 4, down=False, activation="relu",
+            use_dropout=False)  # 16 -> 32
+        self.up_6 = GeneratorCNNBlock(features_g * 8, features_g * 2, down=False, activation="relu",
+            use_dropout=False)  # 32 -> 64
+        self.up_7 = GeneratorCNNBlock(features_g * 4, features_g, down=False, activation="relu",
+            use_dropout=False)  # 64 -> 128
 
         self.final_layer = nn.Sequential(
-            nn.ConvTranspose2d(features_g*2, in_channels, kernel_size=4, stride=2, padding=1),
+            nn.ConvTranspose2d(features_g * 2, in_channels, kernel_size=4, stride=2, padding=1),
             nn.Tanh() 
-        ) # 128 -> 256
+        )  # 128 -> 256
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         initial_output = self.initial_down(input)
