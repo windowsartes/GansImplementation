@@ -2,17 +2,53 @@ import os
 from pathlib import Path
 
 import torch
+import torch.nn as nn
 import torch.optim as optim
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
-from WGAN.models import Critic, Generator, initialize_weights
+from WGAN_GP.models import Critic, Generator, initialize_weights
+
+def gradient_penalty(critic: nn.Module, real: torch.Tensor, fake: torch.Tensor, device: torch.device):
+    """
+    WGAN GP gradient penalty, proposed in the paper;
+
+    Args:
+        critic (nn.Module): Critic model;
+        real (torch.Tensor): batch of real images;
+        fake (torch.Tensor): generator's output;
+        device (torch.device): device where all the computing will be;
+
+    Returns:
+        gradient penalty value;
+    """
+    batch_size, channels, h, w = real.shape
+    epsilon: torch.Tensor = torch.rand((batch_size, 1, 1, 1)).repeat(1, channels, h, w).to(device)
+
+    interpolated_images: torch.Tensor = epsilon * real + (1 - epsilon) * fake
+
+    # value inside the penalty term
+    mixed_scores: torch.Tensor = critic(interpolated_images)
+
+    gradient = torch.autograd.grad(
+        inputs=interpolated_images,
+        outputs=mixed_scores,
+        grad_outputs=torch.ones_like(mixed_scores),
+        create_graph=True,
+        retain_graph=True
+    )[0]
+
+    gradient = gradient.view(gradient.shape[0], -1)
+    gradient_norm = gradient.norm(2, dim=1)
+    gradient_penalty = torch.mean((gradient_norm - 1) ** 2)
+
+    return gradient_penalty
 
 
 device: torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-learning_rate: float = 5e-5
+learning_rate: float = 1e-4
 
 batch_size: int = 64
 image_size: int = 64
@@ -25,7 +61,7 @@ features_generator: int = features_critic
 num_epochs: int = 10
 
 critic_iterations: int = 5
-weight_clip: float = 0.01
+lambda_penalty: float = 10.0
 
 transformations = transforms.Compose(
     [
@@ -46,11 +82,11 @@ dataloader: DataLoader[tuple[torch.Tensor, torch.Tensor]] = DataLoader(dataset,
 
 generator = Generator(z_dim, channels_image, features_generator).to(device)
 initialize_weights(generator)
-optimizer_generator = optim.RMSprop(generator.parameters(), lr=learning_rate)
+optimizer_generator = optim.Adam(generator.parameters(), lr=learning_rate, betas=(0.0, 0.9))
 
 critic = Critic(channels_image, features_critic).to(device)
 initialize_weights(critic)
-optimizer_critic = optim.RMSprop(critic.parameters(), lr=learning_rate)
+optimizer_critic = optim.Adam(critic.parameters(), lr=learning_rate, betas=(0.0, 0.9))
 
 fixed_noise: torch.Tensor = torch.randn((32, z_dim, 1, 1)).to(device)
 
@@ -60,25 +96,25 @@ critic.train()
 for epoch in range(num_epochs):
     for batch_idx, (real, _) in enumerate(dataloader):
         real = real.to(device)
+        current_batch_size: int = real.shape[0]
 
         # train critic
         for _ in range(critic_iterations):
-            noise: torch.Tensor = torch.randn((batch_size, z_dim, 1, 1)).to(device)
+            noise: torch.Tensor = torch.randn((current_batch_size, z_dim, 1, 1)).to(device)
 
             fake = generator(noise)
 
             critic_real = critic(real).reshape(-1)
             critic_fake = critic(fake).reshape(-1)
 
-            # minus because the critic wants to maximize value inside brackets
-            loss_critic = -(torch.mean(critic_real) - torch.mean(critic_fake))
+            penalty = gradient_penalty(critic, real, fake, device=device)
+
+            loss_critic = torch.mean(critic_fake) - torch.mean(critic_real) + \
+                lambda_penalty * penalty
 
             critic.zero_grad()
             loss_critic.backward(retain_graph=True)
             optimizer_critic.step()
-
-            for parameter in critic.parameters():
-                parameter.data.clamp_(-weight_clip, weight_clip)
 
         output = critic(fake).reshape(-1)
         # train generator: we want to maximize E[Critic(fake)] <-> minimize -1 * E[Critic(fake)]
@@ -91,3 +127,4 @@ for epoch in range(num_epochs):
         if batch_idx == 0:
             print(f"Epoch [{epoch}/{num_epochs}] Loss D: {loss_critic:.4f}, " + 
                       f"loss G: {loss_generator:.4f}")
+                      

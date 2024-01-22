@@ -4,7 +4,8 @@ import torch.nn as nn
 
 class Critic(nn.Module):
     """
-    Critic model. Based on DCGAN, except last layer: critic model doesn't have last activation layer;
+    Critic model. Based on DCGAN; Only difference is that there is no final activation layer due to 
+    Critic architecture;
     """
     def __init__(self, channels_image: int, features_d: int) -> None:
         super(Critic, self).__init__()
@@ -30,7 +31,7 @@ class Critic(nn.Module):
                 padding=padding,
                 bias=False
             ),
-            nn.BatchNorm2d(num_features=out_channels),
+            nn.InstanceNorm2d(num_features=out_channels, affine=True),  # in the paper they used LayerNorm
             nn.LeakyReLU(0.2),
         )
 
@@ -76,12 +77,6 @@ class Generator(nn.Module):
 
 
 def initialize_weights(model: nn.Module) -> None:
-    """
-    Weights initialization poroposed in the paper;
-
-    Args:
-        model (nn.Module): model which weights you want to initialize;
-    """
     for module in model.modules():
         if isinstance(module, (nn.Conv2d, nn.ConvTranspose2d, nn.BatchNorm2d)):
             nn.init.normal_(module.weight.data, 0.0, 0.02)
