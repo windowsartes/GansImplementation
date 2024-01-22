@@ -1,6 +1,5 @@
-import torch
 import albumentations as A
-from albumentations.pytorch import ToTensorV2
+import torch
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -24,7 +23,7 @@ both_transforms = A.Compose(
         A.Resize(width=image_size, height=image_size),
         A.HorizontalFlip(p=0.5)
     ],
-    additional_targets = {"image0": "image"},
+    additional_targets={"image0": "image"},
 )
 
 only_input_transforms = A.Compose(

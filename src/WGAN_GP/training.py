@@ -4,7 +4,6 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torchvision
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
@@ -12,6 +11,18 @@ from torch.utils.data import DataLoader
 from WGAN_GP.models import Critic, Generator, initialize_weights
 
 def gradient_penalty(critic: nn.Module, real: torch.Tensor, fake: torch.Tensor, device: torch.device):
+    """
+    WGAN GP gradient penalty, proposed in the paper;
+
+    Args:
+        critic (nn.Module): Critic model;
+        real (torch.Tensor): batch of real images;
+        fake (torch.Tensor): generator's output;
+        device (torch.device): device where all the computing will be;
+
+    Returns:
+        gradient penalty value;
+    """
     batch_size, channels, h, w = real.shape
     epsilon: torch.Tensor = torch.rand((batch_size, 1, 1, 1)).repeat(1, channels, h, w).to(device)
 
@@ -30,7 +41,7 @@ def gradient_penalty(critic: nn.Module, real: torch.Tensor, fake: torch.Tensor, 
 
     gradient = gradient.view(gradient.shape[0], -1)
     gradient_norm = gradient.norm(2, dim=1)
-    gradient_penalty = torch.mean((gradient_norm - 1)**2)
+    gradient_penalty = torch.mean((gradient_norm - 1) ** 2)
 
     return gradient_penalty
 

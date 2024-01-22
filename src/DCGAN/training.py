@@ -4,7 +4,6 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torchvision
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
@@ -38,7 +37,7 @@ transformations = transforms.Compose(
 
 dir_path: os.PathLike[str] = Path(os.path.dirname(os.path.realpath(__file__)))
 
-dataset = datasets.MNIST(root=str(Path.joinpath(dir_path, "dataset")), train=True, # type: ignore
+dataset = datasets.MNIST(root=str(Path.joinpath(dir_path, "dataset")), train=True,  # type: ignore
     transform=transformations, download=True)
 dataloader: DataLoader[tuple[torch.Tensor, torch.Tensor]] = DataLoader(dataset,
     batch_size=batch_size, shuffle=True)
@@ -71,7 +70,7 @@ for epoch in range(num_epochs):
 
         discriminator.zero_grad()
 
-        loss_discriminator = (loss_discriminator_fake + loss_discriminator_real)/2 
+        loss_discriminator = (loss_discriminator_fake + loss_discriminator_real) / 2 
         loss_discriminator.backward(retain_graph=True)
         optimizer_discriminator.step()
 

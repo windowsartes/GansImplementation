@@ -4,7 +4,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from torchvision.utils import save_image
 from tqdm import tqdm
 
 import Pix2Pix.config as config
@@ -24,6 +23,20 @@ def train_function(
         scaler_discriminator: torch.cuda.amp.GradScaler,
         scaler_generator: torch.cuda.amp.GradScaler
     ) -> None:
+    """
+    Function to train your Pix2Pix model; Please notice that this function uses mixed precision training;
+
+    Args:
+        dataloader (DataLoader[tuple[torch.Tensor, torch.Tensor]]): dataloader which will provide model's input;
+        discriminator (Discriminator): Discriminator model;
+        generator (Generator): Generator model;
+        optimizer_discriminator (optim.Optimizer): Discriminator' optimizer;
+        optimizer_generator (optim.Optimizer): Generator's optimizer;
+        bce_loss (nn.BCEWithLogitsLoss): BCE Loss instance;
+        l1_loss (nn.L1Loss): L1 loss instance;
+        scaler_discriminator (torch.cuda.amp.GradScaler): Scaler for discriminator
+        scaler_generator (torch.cuda.amp.GradScaler): Scaler for generator;
+    """
     loop = tqdm(dataloader, leave=True)
 
     for index, (input_image, target_image) in enumerate(loop):
@@ -41,10 +54,10 @@ def train_function(
             discriminator_loss_fake = bce_loss(discriminator_output_fake,
                 torch.zeros_like(discriminator_output_fake))
 
-            discriminator_loss = (discriminator_loss_fake + discriminator_loss_real)/2
+            discriminator_loss = (discriminator_loss_fake + discriminator_loss_real) / 2
 
         discriminator.zero_grad()
-        scaler_discriminator.scale(discriminator_loss).backward(retain_graph = True)
+        scaler_discriminator.scale(discriminator_loss).backward(retain_graph=True)
         scaler_discriminator.step(optimizer_discriminator)
         scaler_discriminator.update()
 
@@ -55,7 +68,7 @@ def train_function(
             generator_loss = generator_output_loss + additional_loss
 
         generator.zero_grad()
-        scaler_generator.scale(generator_loss).backward(retain_graph = True)
+        scaler_generator.scale(generator_loss).backward(retain_graph=True)
         scaler_generator.step(optimizer_generator)
         scaler_generator.update()
 
