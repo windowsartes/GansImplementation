@@ -4,7 +4,6 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torchvision
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
@@ -13,6 +12,19 @@ from Conditional_GAN.models import Critic, Generator, initialize_weights
 
 def gradient_penalty(critic: nn.Module, labels: torch.Tensor, real: torch.Tensor,
     fake: torch.Tensor, device: torch.device) -> torch.Tensor:
+    """
+    Gradien penalty, proposed in the paper;
+
+    Args:
+        critic (nn.Module): Critic model;
+        labels (torch.Tensor): labels of data you want to generate;
+        real (torch.Tensor): real data;
+        fake (torch.Tensor): generated data;
+        device (torch.device): device where all the computing will be; 
+
+    Returns:
+        torch.Tensor: gradient penalty value;
+    """
 
     batch_size, channels, h, w = real.shape
     epsilon: torch.Tensor = torch.rand((batch_size, 1, 1, 1)).repeat(1, channels, h, w).to(device)
@@ -32,7 +44,7 @@ def gradient_penalty(critic: nn.Module, labels: torch.Tensor, real: torch.Tensor
 
     gradient = gradient.view(gradient.shape[0], -1)
     gradient_norm = gradient.norm(2, dim=1)
-    gradient_penalty = torch.mean((gradient_norm - 1)**2)
+    gradient_penalty = torch.mean((gradient_norm - 1) ** 2)
 
     return gradient_penalty
 
@@ -69,7 +81,7 @@ transformations = transforms.Compose(
 
 dir_path: os.PathLike[str] = Path(os.path.dirname(os.path.realpath(__file__)))
 
-dataset = datasets.MNIST(root=str(Path.joinpath(dir_path, "dataset")), train=True, # type: ignore
+dataset = datasets.MNIST(root=str(Path.joinpath(dir_path, "dataset")), train=True,  # type: ignore
     transform=transformations, download=True)
 dataloader: DataLoader[tuple[torch.Tensor, torch.Tensor]] = DataLoader(dataset,
     batch_size=batch_size, shuffle=True)
