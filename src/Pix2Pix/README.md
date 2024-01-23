@@ -7,11 +7,11 @@ I've trained my model for 500 epochs on label to facade dataset, but without a d
 
 So let's take a look at the last epoch model's output.
 
-![](./readme_data/target_images.png "Target images")
+![](./assets/target_images.png "Target images")
 
 Target images
 
-![](./readme_data/generated_images.png "Generated images")
+![](./assets/generated_images.png "Generated images")
 
 Generated images
 

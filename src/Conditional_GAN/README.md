@@ -7,10 +7,10 @@ Here you can find Conditional Gan implementation. Talking about details, this im
 
 As you may notice, the generator's output is quite good, so this Conditional GAN variation works well.
 
-![](./readme_data/MNIST_real.png "Real MNIST")
+![](./assets/MNIST_real.png "Real MNIST")
 
 Real MNIST
 
-![](./readme_data/MNIST_generated.png "Generated samples")
+![](./assets/MNIST_generated.png "Generated samples")
 
 Generated samples
